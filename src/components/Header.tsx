@@ -1,5 +1,5 @@
 import { motion, useAnimation, useScroll } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
@@ -12,6 +12,7 @@ const Nav = styled(motion.nav)`
 	width: 100%;
 	height: 68px;
 	padding: 0 60px;
+	color: ${(props) => props.theme.white.lighter};
 `;
 
 const Col = styled.div`
@@ -40,14 +41,35 @@ const Item = styled.li`
 	margin-right: 20px;
 	font-size: 13px;
 	font-weight: 300;
-	color: ${(props) => props.theme.white.lighter};
+
 	&:hover {
 		color: ${(porps) => porps.theme.white.normal};
 	}
 	transition: color 0.3s ease-in-out;
 `;
 
-const Search = styled.div``;
+const Search = styled.div`
+	position: relative;
+	display: flex;
+	align-items: center;
+	button {
+		all: unset;
+	}
+`;
+
+const Input = styled(motion.input)`
+	position: absolute;
+	z-index: -1;
+	right: 0;
+	width: 250px;
+	padding: 5px 10px;
+	padding-left: 40px;
+	border: 1px solid ${(props) => props.theme.white.normal};
+	background: ${(props) => props.theme.black.darker};
+	color: ${(props) => props.theme.white.normal};
+	line-height: 24px;
+	transform-origin: right center;
+`;
 
 const Notify = styled.div``;
 
@@ -87,6 +109,8 @@ function Header() {
 	const { scrollY } = useScroll();
 	const scrollAnimation = useAnimation();
 
+	const [searchOpen, setSearchOpen] = useState(false);
+
 	useEffect(() => {
 		scrollY.on("change", () => {
 			if (scrollY.get() < 100) {
@@ -96,6 +120,10 @@ function Header() {
 			}
 		});
 	}, [scrollY, scrollAnimation]);
+
+	const toggleSearch = () => {
+		setSearchOpen((prev) => !prev);
+	};
 
 	return (
 		<Nav variants={scrollVariants} animate={scrollAnimation} initial={"top"}>
@@ -120,19 +148,30 @@ function Header() {
 			</Col>
 			<Col>
 				<Search>
-					<svg
-						width="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						xmlns="http://www.w3.org/2000/svg"
+					<motion.button
+						onClick={toggleSearch}
+						animate={{ x: searchOpen ? -215 : 0 }}
+						transition={{ type: "linear" }}
 					>
-						<path
-							fillRule="evenodd"
-							clipRule="evenodd"
-							d="M14 11C14 14.3137 11.3137 17 8 17C4.68629 17 2 14.3137 2 11C2 7.68629 4.68629 5 8 5C11.3137 5 14 7.68629 14 11ZM14.3623 15.8506C12.9006 17.7649 10.5945 19 8 19C3.58172 19 0 15.4183 0 11C0 6.58172 3.58172 3 8 3C12.4183 3 16 6.58172 16 11C16 12.1076 15.7749 13.1626 15.368 14.1218L24.0022 19.1352L22.9979 20.8648L14.3623 15.8506Z"
-							fill="currentColor"
-						></path>
-					</svg>
+						<svg
+							width="24"
+							viewBox="0 0 24 24"
+							fill="none"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							<path
+								fillRule="evenodd"
+								clipRule="evenodd"
+								d="M14 11C14 14.3137 11.3137 17 8 17C4.68629 17 2 14.3137 2 11C2 7.68629 4.68629 5 8 5C11.3137 5 14 7.68629 14 11ZM14.3623 15.8506C12.9006 17.7649 10.5945 19 8 19C3.58172 19 0 15.4183 0 11C0 6.58172 3.58172 3 8 3C12.4183 3 16 6.58172 16 11C16 12.1076 15.7749 13.1626 15.368 14.1218L24.0022 19.1352L22.9979 20.8648L14.3623 15.8506Z"
+								fill="currentColor"
+							></path>
+						</svg>
+					</motion.button>
+					<Input
+						animate={{ scaleX: searchOpen ? 1 : 0 }}
+						transition={{ type: "linear" }}
+						placeholder="Title, People, Genres"
+					/>
 				</Search>
 				<Notify>
 					<svg
