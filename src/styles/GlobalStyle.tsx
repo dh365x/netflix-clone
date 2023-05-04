@@ -11,6 +11,8 @@ export const GlobalStyle = createGlobalStyle`
     color: ${(props) => props.theme.white.normal};
     font-family: 'Noto Sans KR', sans-serif;
     line-height: 1.2;
+    height: 150vh;
+    background-color: white;
   }
   a {
     color: inherit;

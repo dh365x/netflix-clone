@@ -1,15 +1,17 @@
-import { Link } from "react-router-dom";
+import { motion, useAnimation, useScroll } from "framer-motion";
+import { useEffect } from "react";
+import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
-const Nav = styled.nav`
+const Nav = styled(motion.nav)`
 	position: fixed;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	top: 0;
 	width: 100%;
-	padding: 17px 60px;
-	background-color: black;
+	height: 68px;
+	padding: 0 60px;
 `;
 
 const Col = styled.div`
@@ -34,12 +36,13 @@ const Items = styled.ul`
 `;
 
 const Item = styled.li`
+	position: relative;
 	margin-right: 20px;
 	font-size: 13px;
 	font-weight: 300;
-	color: ${(props) => props.theme.white.normal};
+	color: ${(props) => props.theme.white.lighter};
 	&:hover {
-		color: ${(porps) => porps.theme.white.darker};
+		color: ${(porps) => porps.theme.white.normal};
 	}
 	transition: color 0.3s ease-in-out;
 `;
@@ -55,9 +58,47 @@ const Account = styled.div`
 	}
 `;
 
+const Circle = styled(motion.span)`
+	position: absolute;
+	margin: 0 auto;
+	left: 0;
+	right: 0;
+	bottom: -7px;
+	width: 5px;
+	height: 5px;
+	border-radius: 5px;
+	background-color: ${(props) => props.theme.red};
+`;
+
+const scrollVariants = {
+	top: {
+		backgroundImage: "linear-gradient(180deg,rgba(0,0,0,.7) 10%,transparent)",
+	},
+	scroll: {
+		backgroundImage:
+			"linear-gradient(rgba(20, 20, 20, 1), rgba(20, 20, 20, 1))",
+	},
+};
+
 function Header() {
+	const homeMatch = useRouteMatch("/");
+	const tvMatch = useRouteMatch("/tv");
+
+	const { scrollY } = useScroll();
+	const scrollAnimation = useAnimation();
+
+	useEffect(() => {
+		scrollY.on("change", () => {
+			if (scrollY.get() < 100) {
+				scrollAnimation.start("top");
+			} else {
+				scrollAnimation.start("scroll");
+			}
+		});
+	}, [scrollY, scrollAnimation]);
+
 	return (
-		<Nav>
+		<Nav variants={scrollVariants} animate={scrollAnimation} initial={"top"}>
 			<Col>
 				<Link to="/">
 					<Logo viewBox="0 0 1024 276.742" xmlns="http://www.w3.org/2000/svg">
@@ -66,10 +107,14 @@ function Header() {
 				</Link>
 				<Items>
 					<Item>
-						<Link to="/">홈</Link>
+						<Link to="/">
+							홈{homeMatch?.isExact ? <Circle layoutId="circle" /> : null}
+						</Link>
 					</Item>
 					<Item>
-						<Link to="/tv">시리즈</Link>
+						<Link to="/tv">
+							시리즈{tvMatch?.isExact ? <Circle layoutId="circle" /> : null}
+						</Link>
 					</Item>
 				</Items>
 			</Col>
