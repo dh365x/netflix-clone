@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-import Movie from "./routes/Movie";
 import Tv from "./routes/Tv";
 import Search from "./routes/Search";
 import Header from "./components/Header";
+import Home from "./routes/Home";
 
 function App() {
 	return (
@@ -17,7 +17,7 @@ function App() {
 						<Tv />
 					</Route>
 					<Route path="/">
-						<Movie />
+						<Home />
 					</Route>
 				</Switch>
 			</Router>
