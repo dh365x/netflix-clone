@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { IGetMovies, getMovies } from "../api";
 import styled from "styled-components";
 import { makeImagePath } from "../utils";
+import Slider from "../components/Slider";
 
 const Loader = styled.div`
 	display: flex;
@@ -117,6 +118,7 @@ function Home() {
 							</button>
 						</Buttons>
 					</Banner>
+					<Slider />
 				</>
 			)}
 		</>

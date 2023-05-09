@@ -20,7 +20,6 @@ const Col = styled.div`
 	align-items: center;
 	div {
 		margin-left: 25px;
-		cursor: pointer;
 	}
 `;
 
