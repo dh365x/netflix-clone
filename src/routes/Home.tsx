@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { IGetMovies, getMovies } from "../api";
 import styled from "styled-components";
-import { makeImagePath } from "../utils";
+import { makeImagePath, movieTypes } from "../utils";
 import Slider from "../components/Slider";
 
 const Loader = styled.div`
@@ -78,7 +78,7 @@ const Buttons = styled.div`
 function Home() {
 	const { data, isLoading } = useQuery<IGetMovies>(
 		["movie", "now_playing"],
-		getMovies
+		() => getMovies(movieTypes.now_playing)
 	);
 	return (
 		<>
@@ -118,7 +118,10 @@ function Home() {
 							</button>
 						</Buttons>
 					</Banner>
-					<Slider />
+					<Slider type={movieTypes.now_playing} />
+					<Slider type={movieTypes.popular} />
+					<Slider type={movieTypes.top_rated} />
+					<Slider type={movieTypes.upcoming} />
 				</>
 			)}
 		</>

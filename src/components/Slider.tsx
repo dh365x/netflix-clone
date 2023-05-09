@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
 import { IGetMovies, getMovies } from "../api";
-import { makeImagePath } from "../utils";
+import { makeImagePath, movieTypes } from "../utils";
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -34,7 +34,6 @@ const Row = styled(motion.div)`
 
 const Box = styled(motion.div)<{ $bgImage: string }>`
 	height: 150px;
-	background-color: rgba(155, 251, 240, 0.5);
 	background-image: url(${(props) => props.$bgImage});
 	background-position: center center;
 	background-size: cover;
@@ -115,8 +114,8 @@ const infoVariants = {
 
 const offset = 6;
 
-function Slider() {
-	const { data } = useQuery<IGetMovies>(["movie", "now_playing"], getMovies);
+function Slider({ type }: { type: movieTypes }) {
+	const { data } = useQuery<IGetMovies>(["movie", type], () => getMovies(type));
 
 	const [index, setIndex] = useState(0);
 	const [leaving, setLeaving] = useState(false);
@@ -148,7 +147,17 @@ function Slider() {
 
 	return (
 		<Wrapper>
-			<Title>지금 상영중</Title>
+			<Title>
+				{type === movieTypes.now_playing
+					? "지금 뜨는 콘텐츠"
+					: type === movieTypes.popular
+					? "넷플릭스 인기 콘텐츠"
+					: type === movieTypes.top_rated
+					? "오늘 대한민국의 TOP 10"
+					: type === movieTypes.upcoming
+					? "이번 주 공개 콘텐츠"
+					: type}
+			</Title>
 			<AnimatePresence
 				custom={isPrev}
 				initial={false}

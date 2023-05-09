@@ -1,3 +1,5 @@
+import { movieTypes } from "./utils";
+
 export const API_KEY = `cd1301271b0bed0fd9bf1be0caaa26cd`;
 export const BASE_PATH = `https://api.themoviedb.org/3`;
 
@@ -26,8 +28,8 @@ export interface IGetMovies {
 	results: IMovie[];
 }
 
-export function getMovies() {
+export function getMovies(type: movieTypes) {
 	return fetch(
-		`${BASE_PATH}/movie/now_playing?api_key=${API_KEY}&language=ko-KR&page=1`
+		`${BASE_PATH}/movie/${type}?api_key=${API_KEY}&language=ko-KR&page=1`
 	).then((response) => response.json());
 }
