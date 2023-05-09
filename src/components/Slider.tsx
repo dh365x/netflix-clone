@@ -46,6 +46,19 @@ const Box = styled(motion.div)<{ $bgImage: string }>`
 	}
 `;
 
+const Info = styled(motion.div)`
+	position: absolute;
+	width: 100%;
+	bottom: 0;
+	padding: 10px;
+	background-color: ${(props) => props.theme.black.normal};
+	opacity: 0;
+	h3 {
+		text-align: center;
+		font-size: 16px;
+	}
+`;
+
 const Button = styled.button<{ isRight: boolean }>`
 	position: absolute;
 	display: flex;
@@ -81,6 +94,17 @@ const boxVariants = {
 	hover: {
 		y: -50,
 		scale: 1.3,
+		transition: {
+			delay: 0.4,
+			duration: 0.3,
+			type: "tween",
+		},
+	},
+};
+
+const infoVariants = {
+	hover: {
+		opacity: 1,
 		transition: {
 			delay: 0.4,
 			duration: 0.3,
@@ -149,7 +173,11 @@ function Slider() {
 								whileHover="hover"
 								key={movie.id}
 								$bgImage={makeImagePath(movie.backdrop_path, "w500")}
-							/>
+							>
+								<Info variants={infoVariants}>
+									<h3>{movie.title}</h3>
+								</Info>
+							</Box>
 						))}
 				</Row>
 			</AnimatePresence>
