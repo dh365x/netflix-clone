@@ -57,9 +57,17 @@ const Button = styled.button<{ isRight: boolean }>`
 `;
 
 const rowVariants = {
-	hidden: { x: -window.outerWidth - 5 },
+	hidden: (isPrev: boolean) => {
+		return {
+			x: isPrev ? -window.outerWidth : window.outerWidth,
+		};
+	},
 	visible: { x: 0 },
-	exit: { x: window.outerWidth + 5 },
+	exit: (isPrev: boolean) => {
+		return {
+			x: isPrev ? window.outerWidth : -window.outerWidth,
+		};
+	},
 };
 
 const offset = 6;
@@ -69,6 +77,7 @@ function Slider() {
 
 	const [index, setIndex] = useState(0);
 	const [leaving, setLeaving] = useState(false);
+	const [isPrev, setIsPrev] = useState(false);
 
 	const toggleLeaving = () => {
 		setLeaving((prev) => !prev);
@@ -80,15 +89,31 @@ function Slider() {
 			const totalMovie = data.results.length - 3;
 			const maxIndex = Math.floor(totalMovie / offset);
 			setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+			setIsPrev(true);
+		}
+	};
+	const increaseIndex = () => {
+		if (data) {
+			if (leaving) return;
+			toggleLeaving();
+			const totalMovie = data.results.length - 3;
+			const maxIndex = Math.floor(totalMovie / offset);
+			setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+			setIsPrev(false);
 		}
 	};
 
 	return (
 		<Wrapper>
 			<Title>지금 상영중</Title>
-			<AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+			<AnimatePresence
+				custom={isPrev}
+				initial={false}
+				onExitComplete={toggleLeaving}
+			>
 				<Row
 					key={index}
+					custom={isPrev}
 					variants={rowVariants}
 					initial="hidden"
 					animate="visible"
@@ -111,7 +136,7 @@ function Slider() {
 					<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
 				</svg>
 			</Button>
-			<Button isRight={true}>
+			<Button onClick={increaseIndex} isRight={true}>
 				<svg viewBox="0 0 1024 1024">
 					<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
 				</svg>
