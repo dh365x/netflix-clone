@@ -2,11 +2,19 @@ import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
 import { IGetMovies, getMovies } from "../api";
 import { makeImagePath } from "../utils";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Wrapper = styled.div`
 	position: relative;
 	top: -240px;
 	height: 240px;
+	&:hover {
+		button {
+			opacity: 1;
+			transition: 1s ease;
+		}
+	}
 `;
 
 const Title = styled.h2`
@@ -15,7 +23,7 @@ const Title = styled.h2`
 	color: ${(props) => props.theme.white.normal};
 `;
 
-const Row = styled.div`
+const Row = styled(motion.div)`
 	position: absolute;
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
@@ -42,31 +50,68 @@ const Button = styled.button<{ isRight: boolean }>`
 	right: ${(props) => (props.isRight ? 0 : null)};
 	rotate: ${(props) => (props.isRight ? "180deg" : null)};
 	background-color: rgba(20, 20, 20, 0.7);
+	opacity: 0;
 	svg {
 		fill: #fff;
 	}
 `;
 
+const rowVariants = {
+	hidden: { x: -window.outerWidth - 5 },
+	visible: { x: 0 },
+	exit: { x: window.outerWidth + 5 },
+};
+
+const offset = 6;
+
 function Slider() {
 	const { data } = useQuery<IGetMovies>(["movie", "now_playing"], getMovies);
+
+	const [index, setIndex] = useState(0);
+	const [leaving, setLeaving] = useState(false);
+
+	const toggleLeaving = () => {
+		setLeaving((prev) => !prev);
+	};
+	const decreaseIndex = () => {
+		if (data) {
+			if (leaving) return;
+			toggleLeaving();
+			const totalMovie = data.results.length - 3;
+			const maxIndex = Math.floor(totalMovie / offset);
+			setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+		}
+	};
 
 	return (
 		<Wrapper>
 			<Title>지금 상영중</Title>
-			<Row>
-				{data?.results.map((movie) => (
-					<Box
-						key={movie.id}
-						bgImage={makeImagePath(movie.backdrop_path, "w500")}
-					/>
-				))}
-			</Row>
-			<Button isRight={true}>
+			<AnimatePresence initial={false} onExitComplete={toggleLeaving}>
+				<Row
+					key={index}
+					variants={rowVariants}
+					initial="hidden"
+					animate="visible"
+					exit="exit"
+					transition={{ type: "tween", duration: 0.7 }}
+				>
+					{data?.results
+						.slice(2)
+						.slice(offset * index, offset * index + offset)
+						.map((movie) => (
+							<Box
+								key={movie.id}
+								bgImage={makeImagePath(movie.backdrop_path, "w500")}
+							/>
+						))}
+				</Row>
+			</AnimatePresence>
+			<Button onClick={decreaseIndex} isRight={false}>
 				<svg viewBox="0 0 1024 1024">
 					<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
 				</svg>
 			</Button>
-			<Button isRight={false}>
+			<Button isRight={true}>
 				<svg viewBox="0 0 1024 1024">
 					<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
 				</svg>
