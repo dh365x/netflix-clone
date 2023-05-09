@@ -32,12 +32,18 @@ const Row = styled(motion.div)`
 	padding: 0 60px;
 `;
 
-const Box = styled.div<{ bgImage: string }>`
+const Box = styled(motion.div)<{ $bgImage: string }>`
 	height: 150px;
 	background-color: rgba(155, 251, 240, 0.5);
-	background-image: url(${(props) => props.bgImage});
+	background-image: url(${(props) => props.$bgImage});
 	background-position: center center;
 	background-size: cover;
+	&:first-child {
+		transform-origin: center left;
+	}
+	&:last-child {
+		transform-origin: center right;
+	}
 `;
 
 const Button = styled.button<{ isRight: boolean }>`
@@ -67,6 +73,19 @@ const rowVariants = {
 		return {
 			x: isPrev ? window.outerWidth : -window.outerWidth,
 		};
+	},
+};
+
+const boxVariants = {
+	normal: { scale: 1 },
+	hover: {
+		y: -50,
+		scale: 1.3,
+		transition: {
+			delay: 0.4,
+			duration: 0.3,
+			type: "tween",
+		},
 	},
 };
 
@@ -125,8 +144,11 @@ function Slider() {
 						.slice(offset * index, offset * index + offset)
 						.map((movie) => (
 							<Box
+								variants={boxVariants}
+								initial="normal"
+								whileHover="hover"
 								key={movie.id}
-								bgImage={makeImagePath(movie.backdrop_path, "w500")}
+								$bgImage={makeImagePath(movie.backdrop_path, "w500")}
 							/>
 						))}
 				</Row>
