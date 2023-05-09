@@ -1,4 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
 import styled from "styled-components";
+import { IGetMovies, getMovies } from "../api";
+import { makeImagePath } from "../utils";
 
 const Wrapper = styled.div`
 	position: relative;
@@ -21,9 +24,12 @@ const Row = styled.div`
 	padding: 0 60px;
 `;
 
-const Box = styled.div`
+const Box = styled.div<{ bgImage: string }>`
 	height: 150px;
 	background-color: rgba(155, 251, 240, 0.5);
+	background-image: url(${(props) => props.bgImage});
+	background-position: center center;
+	background-size: cover;
 `;
 
 const Button = styled.button<{ isRight: boolean }>`
@@ -42,12 +48,17 @@ const Button = styled.button<{ isRight: boolean }>`
 `;
 
 function Slider() {
+	const { data } = useQuery<IGetMovies>(["movie", "now_playing"], getMovies);
+
 	return (
 		<Wrapper>
 			<Title>지금 상영중</Title>
 			<Row>
-				{[1, 2, 3, 4, 5, 6].map((i) => (
-					<Box key={i}>{i}</Box>
+				{data?.results.map((movie) => (
+					<Box
+						key={movie.id}
+						bgImage={makeImagePath(movie.backdrop_path, "w500")}
+					/>
 				))}
 			</Row>
 			<Button isRight={true}>
