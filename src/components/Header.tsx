@@ -1,5 +1,6 @@
 import { motion, useAnimation, useScroll } from "framer-motion";
 import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Link, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
@@ -47,27 +48,24 @@ const Item = styled.li`
 	transition: color 0.3s ease-in-out;
 `;
 
-const Search = styled.div`
+const Search = styled.form`
 	position: relative;
 	display: flex;
 	align-items: center;
-	button {
-		all: unset;
-	}
 `;
 
 const Input = styled(motion.input)`
 	position: absolute;
+	transform-origin: right center;
 	z-index: -1;
 	right: 0;
 	width: 250px;
 	padding: 5px 10px;
 	padding-left: 40px;
+	line-height: 24px;
 	border: 1px solid ${(props) => props.theme.white.normal};
 	background: ${(props) => props.theme.black.darker};
 	color: ${(props) => props.theme.white.normal};
-	line-height: 24px;
-	transform-origin: right center;
 `;
 
 const Notify = styled.div``;
@@ -101,6 +99,10 @@ const scrollVariants = {
 	},
 };
 
+interface IForm {
+	keyword: string;
+}
+
 function Header() {
 	const homeMatch = useRouteMatch("/");
 	const tvMatch = useRouteMatch("/tv");
@@ -109,6 +111,7 @@ function Header() {
 	const scrollAnimation = useAnimation();
 
 	const [searchOpen, setSearchOpen] = useState(false);
+	const { register, handleSubmit } = useForm<IForm>();
 
 	useEffect(() => {
 		scrollY.on("change", () => {
@@ -122,6 +125,9 @@ function Header() {
 
 	const toggleSearch = () => {
 		setSearchOpen((prev) => !prev);
+	};
+	const onValid = (data: IForm) => {
+		console.log(data.keyword);
 	};
 
 	return (
@@ -146,8 +152,8 @@ function Header() {
 				</Items>
 			</Col>
 			<Col>
-				<Search>
-					<motion.button
+				<Search onSubmit={handleSubmit(onValid)}>
+					<motion.div
 						onClick={toggleSearch}
 						animate={{ x: searchOpen ? -215 : 0 }}
 						transition={{ type: "linear" }}
@@ -165,8 +171,9 @@ function Header() {
 								fill="currentColor"
 							></path>
 						</svg>
-					</motion.button>
+					</motion.div>
 					<Input
+						{...register("keyword", { required: true, minLength: 2 })}
 						animate={{ scaleX: searchOpen ? 1 : 0 }}
 						transition={{ type: "linear" }}
 						placeholder="Title, People, Genres"
