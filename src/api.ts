@@ -33,3 +33,9 @@ export function getMovies(type: movieTypes) {
 		`${BASE_PATH}/movie/${type}?api_key=${API_KEY}&language=ko-KR&page=1`
 	).then((response) => response.json());
 }
+
+export function getSearch(keyword: string) {
+	return fetch(
+		`${BASE_PATH}/search/multi?api_key=${API_KEY}&language=ko-KR&query=${keyword}&page=1&include_adult=true`
+	).then((response) => response.json());
+}

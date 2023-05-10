@@ -9,6 +9,7 @@ const Nav = styled(motion.nav)`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
+	z-index: 10;
 	top: 0;
 	width: 100%;
 	height: 68px;
