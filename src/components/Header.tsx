@@ -1,7 +1,7 @@
 import { motion, useAnimation, useScroll } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link, useHistory, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
 
 const Nav = styled(motion.nav)`
@@ -112,6 +112,7 @@ function Header() {
 
 	const [searchOpen, setSearchOpen] = useState(false);
 	const { register, handleSubmit } = useForm<IForm>();
+	const history = useHistory();
 
 	useEffect(() => {
 		scrollY.on("change", () => {
@@ -127,7 +128,7 @@ function Header() {
 		setSearchOpen((prev) => !prev);
 	};
 	const onValid = (data: IForm) => {
-		console.log(data.keyword);
+		history.push(`/search?keyword=${data.keyword}`);
 	};
 
 	return (
