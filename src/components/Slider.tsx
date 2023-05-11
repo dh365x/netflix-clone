@@ -3,9 +3,11 @@ import styled from "styled-components";
 import { IGetMovies, getMovies } from "../api";
 import { makeImagePath, movieTypes } from "../utils";
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
 
-const Wrapper = styled.div`
+const Wrapper = styled.div``;
+
+const RowContainer = styled.div`
 	position: relative;
 	top: -240px;
 	height: 240px;
@@ -74,6 +76,29 @@ const Button = styled.button<{ isRight: boolean }>`
 	}
 `;
 
+const Overlay = styled.div`
+	position: fixed;
+	top: 0;
+	z-index: 11;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.3);
+`;
+
+const ModalBox = styled.div`
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 11;
+	margin: 0 auto;
+	width: 55vw;
+	height: 90vh;
+	border-radius: 10px;
+	box-shadow: rgb(0 0 0 / 75%) 0px 3px 10px;
+	background-color: ${(props) => props.theme.black.darker};
+`;
+
 const rowVariants = {
 	hidden: (isPrev: boolean) => {
 		return {
@@ -121,6 +146,8 @@ function Slider({ type }: { type: movieTypes }) {
 	const [leaving, setLeaving] = useState(false);
 	const [isPrev, setIsPrev] = useState(false);
 
+	const { scrollY } = useScroll();
+
 	const toggleLeaving = () => {
 		setLeaving((prev) => !prev);
 	};
@@ -147,59 +174,63 @@ function Slider({ type }: { type: movieTypes }) {
 
 	return (
 		<Wrapper>
-			<Title>
-				{type === movieTypes.now_playing
-					? "지금 뜨는 콘텐츠"
-					: type === movieTypes.popular
-					? "넷플릭스 인기 콘텐츠"
-					: type === movieTypes.top_rated
-					? "오늘 대한민국의 TOP 10"
-					: type === movieTypes.upcoming
-					? "이번 주 공개 콘텐츠"
-					: type}
-			</Title>
-			<AnimatePresence
-				custom={isPrev}
-				initial={false}
-				onExitComplete={toggleLeaving}
-			>
-				<Row
-					key={index}
+			<RowContainer>
+				<Title>
+					{type === movieTypes.now_playing
+						? "지금 뜨는 콘텐츠"
+						: type === movieTypes.popular
+						? "넷플릭스 인기 콘텐츠"
+						: type === movieTypes.top_rated
+						? "오늘 대한민국의 TOP 10"
+						: type === movieTypes.upcoming
+						? "이번 주 공개 콘텐츠"
+						: type}
+				</Title>
+				<AnimatePresence
 					custom={isPrev}
-					variants={rowVariants}
-					initial="hidden"
-					animate="visible"
-					exit="exit"
-					transition={{ type: "tween", duration: 0.7 }}
+					initial={false}
+					onExitComplete={toggleLeaving}
 				>
-					{data?.results
-						.slice(2)
-						.slice(offset * index, offset * index + offset)
-						.map((movie) => (
-							<Box
-								variants={boxVariants}
-								initial="normal"
-								whileHover="hover"
-								key={movie.id}
-								$bgImage={makeImagePath(movie.backdrop_path, "w500")}
-							>
-								<Info variants={infoVariants}>
-									<h3>{movie.title}</h3>
-								</Info>
-							</Box>
-						))}
-				</Row>
-			</AnimatePresence>
-			<Button onClick={decreaseIndex} isRight={false}>
-				<svg viewBox="0 0 1024 1024">
-					<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
-				</svg>
-			</Button>
-			<Button onClick={increaseIndex} isRight={true}>
-				<svg viewBox="0 0 1024 1024">
-					<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
-				</svg>
-			</Button>
+					<Row
+						key={index}
+						custom={isPrev}
+						variants={rowVariants}
+						initial="hidden"
+						animate="visible"
+						exit="exit"
+						transition={{ type: "tween", duration: 0.7 }}
+					>
+						{data?.results
+							.slice(2)
+							.slice(offset * index, offset * index + offset)
+							.map((movie) => (
+								<Box
+									variants={boxVariants}
+									initial="normal"
+									whileHover="hover"
+									key={movie.id}
+									$bgImage={makeImagePath(movie.backdrop_path, "w500")}
+								>
+									<Info variants={infoVariants}>
+										<h3>{movie.title}</h3>
+									</Info>
+								</Box>
+							))}
+					</Row>
+				</AnimatePresence>
+				<Button onClick={decreaseIndex} isRight={false}>
+					<svg viewBox="0 0 1024 1024">
+						<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
+					</svg>
+				</Button>
+				<Button onClick={increaseIndex} isRight={true}>
+					<svg viewBox="0 0 1024 1024">
+						<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
+					</svg>
+				</Button>
+			</RowContainer>
+			<Overlay />
+			<ModalBox style={{ top: scrollY.get() + 30 }} />
 		</Wrapper>
 	);
 }
