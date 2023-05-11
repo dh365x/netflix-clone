@@ -4,6 +4,7 @@ import { IGetMovies, getMovies } from "../api";
 import { makeImagePath, movieTypes } from "../utils";
 import { useState } from "react";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
 const Wrapper = styled.div``;
 
@@ -76,16 +77,16 @@ const Button = styled.button<{ isRight: boolean }>`
 	}
 `;
 
-const Overlay = styled.div`
+const Overlay = styled(motion.div)`
 	position: fixed;
 	top: 0;
 	z-index: 11;
 	width: 100%;
 	height: 100%;
-	background-color: rgba(0, 0, 0, 0.3);
+	background-color: rgba(0, 0, 0, 0.7);
 `;
 
-const ModalBox = styled.div`
+const ModalBox = styled(motion.div)`
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -147,6 +148,10 @@ function Slider({ type }: { type: movieTypes }) {
 	const [isPrev, setIsPrev] = useState(false);
 
 	const { scrollY } = useScroll();
+	const history = useHistory();
+	const modalMatch = useRouteMatch<{ movieId: string }>(
+		`/movie/${type}/:movieId`
+	);
 
 	const toggleLeaving = () => {
 		setLeaving((prev) => !prev);
@@ -170,6 +175,13 @@ function Slider({ type }: { type: movieTypes }) {
 			setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
 			setIsPrev(false);
 		}
+	};
+
+	const onBoxClick = (movieId: number) => {
+		history.push(`/movie/${type}/${movieId}`);
+	};
+	const onOverlayClick = () => {
+		history.push(`/`);
 	};
 
 	return (
@@ -205,6 +217,8 @@ function Slider({ type }: { type: movieTypes }) {
 							.slice(offset * index, offset * index + offset)
 							.map((movie) => (
 								<Box
+									layoutId={movie.id + ""}
+									onClick={() => onBoxClick(movie.id)}
 									variants={boxVariants}
 									initial="normal"
 									whileHover="hover"
@@ -229,8 +243,23 @@ function Slider({ type }: { type: movieTypes }) {
 					</svg>
 				</Button>
 			</RowContainer>
-			<Overlay />
-			<ModalBox style={{ top: scrollY.get() + 30 }} />
+			<AnimatePresence>
+				{modalMatch ? (
+					<>
+						<Overlay
+							onClick={onOverlayClick}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+						/>
+						<ModalBox
+							layoutId={modalMatch.params.movieId}
+							style={{ top: scrollY.get() + 30 }}
+						>
+							{modalMatch.params.movieId}
+						</ModalBox>
+					</>
+				) : null}
+			</AnimatePresence>
 		</Wrapper>
 	);
 }
