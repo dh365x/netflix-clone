@@ -100,6 +100,42 @@ const ModalBox = styled(motion.div)`
 	background-color: ${(props) => props.theme.black.darker};
 `;
 
+const ModalCover = styled.div<{ $bgCover: string }>`
+	position: relative;
+	display: flex;
+	width: 100%;
+	height: 60%;
+	padding-left: 50px;
+	border-radius: 10px;
+	background-size: cover;
+	background-position: cneter center;
+	background-image: linear-gradient(0deg, #181818, transparent 50%),
+		url(${(props) => props.$bgCover});
+`;
+
+const ModalTitle = styled.h3`
+	position: absolute;
+	display: flex;
+	bottom: 130px;
+	font-size: 46px;
+`;
+
+const CloseButton = styled.button`
+	position: absolute;
+	display: flex;
+	justify-content: center;
+	top: 15px;
+	right: 15px;
+	width: 17px;
+	height: 17px;
+	padding: 10px;
+	border-radius: 50%;
+	background-color: ${(props) => props.theme.black.darker};
+	&:active {
+		border: 3px solid white;
+	}
+`;
+
 const rowVariants = {
 	hidden: (isPrev: boolean) => {
 		return {
@@ -152,6 +188,9 @@ function Slider({ type }: { type: movieTypes }) {
 	const modalMatch = useRouteMatch<{ movieId: string }>(
 		`/movie/${type}/:movieId`
 	);
+	const movieMatch =
+		modalMatch?.params.movieId &&
+		data?.results.find((movie) => movie.id === +modalMatch.params.movieId);
 
 	const toggleLeaving = () => {
 		setLeaving((prev) => !prev);
@@ -181,7 +220,7 @@ function Slider({ type }: { type: movieTypes }) {
 		history.push(`/movie/${type}/${movieId}`);
 	};
 	const onOverlayClick = () => {
-		history.push(`/`);
+		history.goBack();
 	};
 
 	return (
@@ -255,7 +294,28 @@ function Slider({ type }: { type: movieTypes }) {
 							layoutId={modalMatch.params.movieId}
 							style={{ top: scrollY.get() + 30 }}
 						>
-							{modalMatch.params.movieId}
+							{movieMatch ? (
+								<>
+									<ModalCover
+										$bgCover={makeImagePath(
+											movieMatch.backdrop_path || movieMatch.poster_path
+										)}
+									>
+										<ModalTitle>{movieMatch.title}</ModalTitle>
+										<CloseButton onClick={onOverlayClick}>
+											<svg
+												viewBox="0 0 24 24"
+												xmlns="http://www.w3.org/2000/svg"
+											>
+												<path
+													fill="currentColor"
+													d="M2.29297 3.70706L10.5859 12L2.29297 20.2928L3.70718 21.7071L12.0001 13.4142L20.293 21.7071L21.7072 20.2928L13.4143 12L21.7072 3.70706L20.293 2.29285L12.0001 10.5857L3.70718 2.29285L2.29297 3.70706Z"
+												></path>
+											</svg>
+										</CloseButton>
+									</ModalCover>
+								</>
+							) : null}
 						</ModalBox>
 					</>
 				) : null}
