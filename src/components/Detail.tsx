@@ -41,6 +41,32 @@ const Buttons = styled.div`
 	}
 `;
 
+const Info = styled.div`
+	display: flex;
+	justify-content: space-between;
+	padding: 30px 50px;
+	font-weight: 300;
+`;
+
+const DetailInfo = styled.div`
+	width: 70%;
+	span {
+		margin-right: 10px;
+		&:first-child {
+			color: #46d369;
+		}
+		&:last-child {
+			display: flex;
+			margin-top: 30px;
+		}
+	}
+`;
+
+const CreditsInfo = styled.div`
+	width: 30%;
+	background-color: seagreen;
+`;
+
 interface IProps {
 	id: string;
 	type: movieTypes;
@@ -51,6 +77,17 @@ function Detail({ id, type }: IProps) {
 		[`movieDetail`, `movieDetail_${type}`],
 		() => getMovieDetail(id)
 	);
+
+	const getYear = (date: string) => {
+		if (date) return date.split("-")[0];
+	};
+	const getRuntime = (runTime: number) => {
+		if (runTime) {
+			const time = Math.floor(runTime / 60);
+			const min = Math.floor(runTime % 60);
+			return `${time}시간 ${min}분`;
+		}
+	};
 
 	return (
 		<Wrapper>
@@ -64,6 +101,15 @@ function Detail({ id, type }: IProps) {
 							<Tags />
 						</Buttons>
 					</Cover>
+					<Info>
+						<DetailInfo>
+							<span>{Math.floor(detailData.vote_average * 10)}% 일치</span>
+							<span>{getYear(detailData.release_date)}</span>
+							<span>{getRuntime(detailData.runtime)}</span>
+							<span>{detailData.tagline}</span>
+						</DetailInfo>
+						<CreditsInfo></CreditsInfo>
+					</Info>
 				</>
 			)}
 		</Wrapper>
