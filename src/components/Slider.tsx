@@ -5,9 +5,7 @@ import { makeImagePath, movieTypes } from "../utils";
 import { useState } from "react";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import { useHistory, useRouteMatch } from "react-router-dom";
-import Play from "./buttons/Play";
-import Tags from "./buttons/Tags";
-import Close from "./buttons/Close";
+import Detail from "./Detail";
 
 const Wrapper = styled.div``;
 
@@ -103,36 +101,6 @@ const ModalBox = styled(motion.div)`
 	background-color: ${(props) => props.theme.black.darker};
 `;
 
-const ModalCover = styled.div<{ $bgCover: string }>`
-	position: relative;
-	display: flex;
-	width: 100%;
-	height: 60%;
-	padding-left: 50px;
-	border-radius: 10px;
-	background-size: cover;
-	background-position: cneter center;
-	background-image: linear-gradient(0deg, #181818, transparent 50%),
-		url(${(props) => props.$bgCover});
-`;
-
-const ModalTitle = styled.h3`
-	position: absolute;
-	display: flex;
-	bottom: 130px;
-	font-size: 46px;
-`;
-
-const Buttons = styled.div`
-	position: absolute;
-	display: flex;
-	align-items: center;
-	bottom: 50px;
-	button {
-		margin-right: 10px;
-	}
-`;
-
 const rowVariants = {
 	hidden: (isPrev: boolean) => {
 		return {
@@ -185,9 +153,6 @@ function Slider({ type }: { type: movieTypes }) {
 	const modalMatch = useRouteMatch<{ movieId: string }>(
 		`/movie/${type}/:movieId`
 	);
-	const movieMatch =
-		modalMatch?.params.movieId &&
-		data?.results.find((movie) => movie.id === +modalMatch.params.movieId);
 
 	const toggleLeaving = () => {
 		setLeaving((prev) => !prev);
@@ -253,7 +218,7 @@ function Slider({ type }: { type: movieTypes }) {
 							.slice(offset * index, offset * index + offset)
 							.map((movie) => (
 								<Box
-									layoutId={movie.id + ""}
+									layoutId={type + movie.id}
 									onClick={() => onBoxClick(movie.id)}
 									variants={boxVariants}
 									initial="normal"
@@ -280,7 +245,7 @@ function Slider({ type }: { type: movieTypes }) {
 				</Button>
 			</RowContainer>
 			<AnimatePresence>
-				{modalMatch ? (
+				{modalMatch && (
 					<>
 						<Overlay
 							onClick={onOverlayClick}
@@ -288,28 +253,13 @@ function Slider({ type }: { type: movieTypes }) {
 							exit={{ opacity: 0 }}
 						/>
 						<ModalBox
-							layoutId={modalMatch.params.movieId}
+							layoutId={type + modalMatch.params.movieId}
 							style={{ top: scrollY.get() + 30 }}
 						>
-							{movieMatch ? (
-								<>
-									<ModalCover
-										$bgCover={makeImagePath(
-											movieMatch.backdrop_path || movieMatch.poster_path
-										)}
-									>
-										<ModalTitle>{movieMatch.title}</ModalTitle>
-										<Close onClick={onOverlayClick} />
-										<Buttons>
-											<Play />
-											<Tags />
-										</Buttons>
-									</ModalCover>
-								</>
-							) : null}
+							<Detail id={modalMatch.params.movieId} type={type} />
 						</ModalBox>
 					</>
-				) : null}
+				)}
 			</AnimatePresence>
 		</Wrapper>
 	);

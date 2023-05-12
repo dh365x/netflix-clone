@@ -77,7 +77,7 @@ const Buttons = styled.div`
 
 function Home() {
 	const { data, isLoading } = useQuery<IGetMovies>(
-		["movie", "now_playing"],
+		["home", movieTypes.now_playing],
 		() => getMovies(movieTypes.now_playing)
 	);
 	return (

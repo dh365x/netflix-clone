@@ -1,3 +1,4 @@
+import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 
 const Wrapper = styled.button`
@@ -16,13 +17,14 @@ const Wrapper = styled.button`
 	}
 `;
 
-interface ButtonProps {
-	onClick: () => void;
-}
+function Close() {
+	const history = useHistory();
+	const onCloseClick = () => {
+		history.goBack();
+	};
 
-function Close({ onClick }: ButtonProps) {
 	return (
-		<Wrapper onClick={onClick}>
+		<Wrapper onClick={onCloseClick}>
 			<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 				<path
 					fill="currentColor"
