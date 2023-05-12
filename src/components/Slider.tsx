@@ -95,7 +95,7 @@ const ModalBox = styled(motion.div)`
 	z-index: 11;
 	margin: 0 auto;
 	width: 55vw;
-	height: 90vh;
+	height: 100%;
 	border-radius: 10px;
 	box-shadow: rgb(0 0 0 / 75%) 0px 3px 10px;
 	background-color: ${(props) => props.theme.black.darker};

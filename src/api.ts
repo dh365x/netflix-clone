@@ -74,6 +74,30 @@ export interface IMovieCredit {
 	orde: number;
 }
 
+export interface IGetMovieRecommend {
+	page: number;
+	results: IMovieRecommend[];
+	total_pages: number;
+	total_results: number;
+}
+export interface IMovieRecommend {
+	adult: boolean;
+	backdrop_path: string;
+	id: number;
+	title: string;
+	original_language: string;
+	original_title: string;
+	overview: string;
+	poster_path: string;
+	media_type: string;
+	genre_ids: object;
+	popularity: number;
+	release_date: string;
+	video: boolean;
+	vote_average: number;
+	vote_count: number;
+}
+
 export function getMovies(type: movieTypes) {
 	return fetch(
 		`${BASE_PATH}/movie/${type}?api_key=${API_KEY}&language=ko-KR&page=1`
@@ -89,6 +113,12 @@ export function getMovieDetail(id: string) {
 export function getMovieCredits(id: string) {
 	return fetch(
 		`${BASE_PATH}/movie/${id}/credits?api_key=${API_KEY}&language=ko-KR`
+	).then((response) => response.json());
+}
+
+export function getMovieRecommend(id: string) {
+	return fetch(
+		`${BASE_PATH}/movie/${id}/recommendations?api_key=${API_KEY}&language=ko-KR`
 	).then((response) => response.json());
 }
 

@@ -4,27 +4,26 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	IGetMovieCredit,
 	IGetMovieDetail,
+	IGetMovieRecommend,
 	getMovieCredits,
 	getMovieDetail,
+	getMovieRecommend,
 } from "../api";
+import Close from "./buttons/Close";
 import Play from "./buttons/Play";
 import Tags from "./buttons/Tags";
-import Close from "./buttons/Close";
 
 const Wrapper = styled.div`
-	width: 100%;
-	height: 100%;
+	background-color: ${(props) => props.theme.black.darker};
+	padding-bottom: 10px;
 `;
 
 const Cover = styled.div<{ $bgCover: string }>`
 	position: relative;
-	display: flex;
-	width: 100%;
-	height: 60%;
-	padding-left: 50px;
-	border-radius: 6px;
+	height: 520px;
+	border-radius: 6px 6px 0 0;
 	background-size: cover;
-	background-position: cneter center;
+	background-position: center center;
 	background-image: linear-gradient(0deg, #181818, transparent 50%),
 		url(${(props) => props.$bgCover});
 `;
@@ -32,25 +31,31 @@ const Cover = styled.div<{ $bgCover: string }>`
 const Title = styled.h3`
 	position: absolute;
 	display: flex;
-	bottom: 130px;
+	margin-left: 48px;
+	bottom: 140px;
 	font-size: 46px;
 `;
 
 const Buttons = styled.div`
 	position: absolute;
 	display: flex;
+	margin-left: 48px;
 	align-items: center;
-	bottom: 50px;
+	bottom: 60px;
 	button {
 		margin-right: 10px;
 	}
 `;
 
+const Container = styled.div`
+	padding: 10px 48px;
+	background-color: ${(props) => props.theme.black.darker};
+	font-weight: 300;
+`;
+
 const Info = styled.div`
 	display: flex;
-	justify-content: space-between;
-	padding: 30px 50px;
-	font-weight: 300;
+	height: 160px;
 `;
 
 const DetailInfo = styled.div`
@@ -59,6 +64,7 @@ const DetailInfo = styled.div`
 		margin-right: 10px;
 		&:first-child {
 			color: #46d369;
+			font-weight: 500;
 		}
 		&:last-child {
 			display: flex;
@@ -81,6 +87,37 @@ const CreditsInfo = styled.div`
 	}
 `;
 
+const Recommend = styled.div`
+	h3 {
+		font-size: 24px;
+		font-weight: 500;
+		margin-bottom: 20px;
+	}
+`;
+
+const List = styled.div`
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20px;
+`;
+
+const Box = styled.div<{ $bgPoster: string }>`
+	height: 380px;
+	border-radius: 6px;
+	background-color: ${(props) => props.theme.black.lighter};
+	background-size: cover;
+	background-position: cneter center;
+	background-image: url(${(props) => props.$bgPoster});
+	p {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		font-size: 20px;
+		font-weight: 500;
+	}
+`;
+
 interface IProps {
 	id: string;
 	type: movieTypes;
@@ -94,6 +131,10 @@ function Detail({ id, type }: IProps) {
 	const { data: creditsData } = useQuery<IGetMovieCredit>(
 		[`movieCredist`, `movieCredits_${type}`],
 		() => getMovieCredits(id)
+	);
+	const { data: recomendData } = useQuery<IGetMovieRecommend>(
+		[`movieRecommend`, `movieRecommend_${type}`],
+		() => getMovieRecommend(id)
 	);
 
 	const getYear = (date: string) => {
@@ -119,28 +160,47 @@ function Detail({ id, type }: IProps) {
 							<Tags />
 						</Buttons>
 					</Cover>
-					<Info>
-						<DetailInfo>
-							<span>{Math.floor(detailData.vote_average * 10)}% 일치</span>
-							<span>{getYear(detailData.release_date)}</span>
-							<span>{getRuntime(detailData.runtime)}</span>
-							<span>{detailData.tagline}</span>
-						</DetailInfo>
-						<CreditsInfo>
-							<div>
-								<label>출연: </label>
-								{creditsData?.cast.slice(0, 2).map((actor) => (
-									<span key={actor.cast_id}>{actor.name}, </span>
-								))}
-							</div>
-							<div>
-								<label>장르: </label>
-								{detailData.genres.map((genre) => (
-									<span key={genre.id}>{genre.name}, </span>
-								))}
-							</div>
-						</CreditsInfo>
-					</Info>
+					<Container>
+						<Info>
+							<DetailInfo>
+								<span>{Math.floor(detailData.vote_average * 10)}% 일치</span>
+								<span>{getYear(detailData.release_date)}</span>
+								<span>{getRuntime(detailData.runtime)}</span>
+								<span>{detailData.tagline}</span>
+							</DetailInfo>
+							<CreditsInfo>
+								<div>
+									<label>출연: </label>
+									{creditsData?.cast.slice(0, 2).map((actor) => (
+										<span key={actor.cast_id}>{actor.name}, </span>
+									))}
+								</div>
+								<div>
+									<label>장르: </label>
+									{detailData.genres.map((genre) => (
+										<span key={genre.id}>{genre.name}, </span>
+									))}
+								</div>
+							</CreditsInfo>
+						</Info>
+						<Recommend>
+							{recomendData?.results.length === 0 ? null : (
+								<>
+									<h3>함께 시청한 콘텐츠</h3>
+									<List>
+										{recomendData?.results.slice(0, 6).map((video) => (
+											<Box
+												$bgPoster={makeImagePath(video.poster_path, "w500")}
+												key={video.id}
+											>
+												<p>{video.poster_path ? null : video.title}</p>
+											</Box>
+										))}
+									</List>
+								</>
+							)}
+						</Recommend>
+					</Container>
 				</>
 			)}
 		</Wrapper>
