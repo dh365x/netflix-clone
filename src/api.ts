@@ -55,6 +55,25 @@ export interface IGetMovieDetail {
 	vote_count: number;
 }
 
+export interface IGetMovieCredit {
+	id: number;
+	cast: IMovieCredit[];
+}
+export interface IMovieCredit {
+	adult: boolean;
+	gender: number;
+	id: number;
+	known_for_department: string;
+	name: string;
+	original_name: string;
+	popularity: number;
+	profile_path: string;
+	cast_id: number;
+	character: string;
+	credit_id: string;
+	orde: number;
+}
+
 export function getMovies(type: movieTypes) {
 	return fetch(
 		`${BASE_PATH}/movie/${type}?api_key=${API_KEY}&language=ko-KR&page=1`
@@ -64,6 +83,12 @@ export function getMovies(type: movieTypes) {
 export function getMovieDetail(id: string) {
 	return fetch(
 		`${BASE_PATH}/movie/${id}?api_key=${API_KEY}&language=ko-KR`
+	).then((response) => response.json());
+}
+
+export function getMovieCredits(id: string) {
+	return fetch(
+		`${BASE_PATH}/movie/${id}/credits?api_key=${API_KEY}&language=ko-KR`
 	).then((response) => response.json());
 }
 

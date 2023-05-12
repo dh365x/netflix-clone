@@ -1,7 +1,12 @@
 import styled from "styled-components";
 import { makeImagePath, movieTypes } from "../utils";
 import { useQuery } from "@tanstack/react-query";
-import { IGetMovieDetail, getMovieDetail } from "../api";
+import {
+	IGetMovieCredit,
+	IGetMovieDetail,
+	getMovieCredits,
+	getMovieDetail,
+} from "../api";
 import Play from "./buttons/Play";
 import Tags from "./buttons/Tags";
 import Close from "./buttons/Close";
@@ -64,7 +69,16 @@ const DetailInfo = styled.div`
 
 const CreditsInfo = styled.div`
 	width: 30%;
-	background-color: seagreen;
+	font-size: 14px;
+	div {
+		margin-bottom: 15px;
+	}
+	label {
+		color: #777;
+	}
+	span {
+		margin-right: 5px;
+	}
 `;
 
 interface IProps {
@@ -76,6 +90,10 @@ function Detail({ id, type }: IProps) {
 	const { data: detailData } = useQuery<IGetMovieDetail>(
 		[`movieDetail`, `movieDetail_${type}`],
 		() => getMovieDetail(id)
+	);
+	const { data: creditsData } = useQuery<IGetMovieCredit>(
+		[`movieCredist`, `movieCredits_${type}`],
+		() => getMovieCredits(id)
 	);
 
 	const getYear = (date: string) => {
@@ -108,7 +126,20 @@ function Detail({ id, type }: IProps) {
 							<span>{getRuntime(detailData.runtime)}</span>
 							<span>{detailData.tagline}</span>
 						</DetailInfo>
-						<CreditsInfo></CreditsInfo>
+						<CreditsInfo>
+							<div>
+								<label>출연: </label>
+								{creditsData?.cast.slice(0, 2).map((actor) => (
+									<span key={actor.cast_id}>{actor.name}, </span>
+								))}
+							</div>
+							<div>
+								<label>장르: </label>
+								{detailData.genres.map((genre) => (
+									<span key={genre.id}>{genre.name}, </span>
+								))}
+							</div>
+						</CreditsInfo>
 					</Info>
 				</>
 			)}
