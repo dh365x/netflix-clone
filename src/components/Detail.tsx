@@ -4,14 +4,17 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	IGetMovieCredit,
 	IGetMovieDetail,
+	IGetMovieRating,
 	IGetMovieRecommend,
 	getMovieCredits,
 	getMovieDetail,
+	getMovieRating,
 	getMovieRecommend,
 } from "../api";
 import Close from "./buttons/Close";
 import Play from "./buttons/Play";
 import Tags from "./buttons/Tags";
+import { SvgRAll, SvgR12, SvgR15, SvgR18 } from "../assets/SvgRating";
 
 const Wrapper = styled.div`
 	background-color: ${(props) => props.theme.black.darker};
@@ -71,6 +74,12 @@ const DetailInfo = styled.div`
 			margin-top: 30px;
 		}
 	}
+	div {
+		padding-top: 10px;
+		svg {
+			width: 30px;
+		}
+	}
 `;
 
 const CreditsInfo = styled.div`
@@ -88,6 +97,7 @@ const CreditsInfo = styled.div`
 `;
 
 const Recommend = styled.div`
+	margin-top: 20px;
 	h3 {
 		font-size: 24px;
 		font-weight: 500;
@@ -132,6 +142,9 @@ function Detail({ id, type }: IProps) {
 		[`movieCredist`, `movieCredits_${type}`],
 		() => getMovieCredits(id)
 	);
+	const { data: ratingData } = useQuery<IGetMovieRating>([`rating`], () =>
+		getMovieRating(id)
+	);
 	const { data: recomendData } = useQuery<IGetMovieRecommend>(
 		[`movieRecommend`, `movieRecommend_${type}`],
 		() => getMovieRecommend(id)
@@ -147,6 +160,13 @@ function Detail({ id, type }: IProps) {
 			return `${time}시간 ${min}분`;
 		}
 	};
+	const getRating = String(
+		ratingData?.results
+			.find((data) => data.iso_3166_1 === "US")
+			?.release_dates.map((value) => value.certification)
+			.filter((item) => item !== "")
+			.slice(-1)
+	);
 
 	return (
 		<Wrapper>
@@ -166,6 +186,17 @@ function Detail({ id, type }: IProps) {
 								<span>{Math.floor(detailData.vote_average * 10)}% 일치</span>
 								<span>{getYear(detailData.release_date)}</span>
 								<span>{getRuntime(detailData.runtime)}</span>
+								<div>
+									{getRating === "G" ? (
+										<SvgRAll />
+									) : getRating === "PG" ? (
+										<SvgR12 />
+									) : getRating === "PG-13" ? (
+										<SvgR15 />
+									) : (
+										<SvgR18 />
+									)}
+								</div>
 								<span>{detailData.tagline}</span>
 							</DetailInfo>
 							<CreditsInfo>

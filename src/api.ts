@@ -46,13 +46,33 @@ export interface IGetMovieDetail {
 	release_date: string;
 	revenue: number;
 	runtime: number;
-	spoken_languages: object;
+	spoken_languages: [
+		{
+			iso_639_1: string;
+			name: string;
+		}
+	];
 	status: string;
 	tagline: string;
 	title: string;
 	video: boolean;
 	vote_average: number;
 	vote_count: number;
+}
+
+export interface IGetMovieRating {
+	id: number;
+	results: IMovieRating[];
+}
+export interface IMovieRating {
+	iso_3166_1: string;
+	release_dates: [
+		{
+			certification: string;
+			release_date: string;
+			type: number;
+		}
+	];
 }
 
 export interface IGetMovieCredit {
@@ -107,6 +127,12 @@ export function getMovies(type: movieTypes) {
 export function getMovieDetail(id: string) {
 	return fetch(
 		`${BASE_PATH}/movie/${id}?api_key=${API_KEY}&language=ko-KR`
+	).then((response) => response.json());
+}
+
+export function getMovieRating(id: string) {
+	return fetch(
+		`${BASE_PATH}/movie/${id}/release_dates?api_key=${API_KEY}`
 	).then((response) => response.json());
 }
 
