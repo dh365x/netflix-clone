@@ -77,9 +77,10 @@ export interface IMovieRating {
 
 export interface IGetMovieCredit {
 	id: number;
-	cast: IMovieCredit[];
+	cast: IMovieCast[];
+	crew: IMovieCrew[];
 }
-export interface IMovieCredit {
+export interface IMovieCast {
 	adult: boolean;
 	gender: number;
 	id: number;
@@ -92,6 +93,19 @@ export interface IMovieCredit {
 	character: string;
 	credit_id: string;
 	orde: number;
+}
+export interface IMovieCrew {
+	adult: boolean;
+	gender: number;
+	id: number;
+	known_for_department: string;
+	name: string;
+	original_name: string;
+	popularity: number;
+	profile_path: string;
+	credit_id: string;
+	department: string;
+	job: string;
 }
 
 export interface IGetMovieRecommend {

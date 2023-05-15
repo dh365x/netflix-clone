@@ -58,27 +58,33 @@ const Container = styled.div`
 
 const Info = styled.div`
 	display: flex;
-	height: 160px;
+	justify-content: space-between;
 `;
 
 const DetailInfo = styled.div`
-	width: 70%;
-	span {
-		margin-right: 10px;
-		&:first-child {
-			color: #46d369;
-			font-weight: 500;
+	width: 65%;
+	div {
+		span {
+			margin-right: 10px;
+			&:first-child {
+				color: #46d369;
+				font-weight: 500;
+			}
 		}
-		&:last-child {
+		div {
 			display: flex;
-			margin-top: 30px;
+			align-items: center;
+			margin-top: 10px;
+		}
+		svg {
+			width: 25px;
+			margin-right: 10px;
 		}
 	}
-	div {
-		padding-top: 10px;
-		svg {
-			width: 30px;
-		}
+	p {
+		display: flex;
+		margin-top: 20px;
+		margin-bottom: 20px;
 	}
 `;
 
@@ -97,7 +103,7 @@ const CreditsInfo = styled.div`
 `;
 
 const Recommend = styled.div`
-	margin-top: 20px;
+	margin-top: 30px;
 	h3 {
 		font-size: 24px;
 		font-weight: 500;
@@ -168,6 +174,7 @@ function Detail({ id, type }: IProps) {
 			.slice(-1)
 	);
 
+	console.log(getRating);
 	return (
 		<Wrapper>
 			{detailData && (
@@ -183,26 +190,50 @@ function Detail({ id, type }: IProps) {
 					<Container>
 						<Info>
 							<DetailInfo>
-								<span>{Math.floor(detailData.vote_average * 10)}% 일치</span>
-								<span>{getYear(detailData.release_date)}</span>
-								<span>{getRuntime(detailData.runtime)}</span>
 								<div>
-									{getRating === "G" ? (
-										<SvgRAll />
-									) : getRating === "PG" ? (
-										<SvgR12 />
-									) : getRating === "PG-13" ? (
-										<SvgR15 />
-									) : (
-										<SvgR18 />
-									)}
+									<span>{Math.floor(detailData.vote_average * 10)}% 일치</span>
+									<span>{getYear(detailData.release_date)}</span>
+									<span>{getRuntime(detailData.runtime)}</span>
+									<div>
+										{getRating === "G" ? (
+											<div>
+												<SvgRAll />
+												<span>전체관람가</span>
+											</div>
+										) : getRating === "PG" ? (
+											<>
+												<SvgR12 />
+												<span>12세이상 관람가</span>
+											</>
+										) : getRating === "PG-13" ? (
+											<>
+												<SvgR15 />
+												<span>15세이상 관람가</span>
+											</>
+										) : (
+											<>
+												<SvgR18 />
+												<span>청소년 관람불가</span>
+											</>
+										)}
+									</div>
 								</div>
-								<span>{detailData.tagline}</span>
+								<p>{detailData.tagline || detailData.overview}</p>
 							</DetailInfo>
 							<CreditsInfo>
 								<div>
+									<label>감독: </label>
+									<span>
+										{
+											creditsData?.crew.find(
+												(person) => person.job === "Director"
+											)?.name
+										}
+									</span>
+								</div>
+								<div>
 									<label>출연: </label>
-									{creditsData?.cast.slice(0, 2).map((actor) => (
+									{creditsData?.cast.slice(0, 6).map((actor) => (
 										<span key={actor.cast_id}>{actor.name}, </span>
 									))}
 								</div>
