@@ -18,6 +18,7 @@ import { SvgRAll, SvgR12, SvgR15, SvgR18 } from "../assets/SvgRating";
 
 const Wrapper = styled.div`
 	background-color: ${(props) => props.theme.black.darker};
+	border-radius: 6px;
 	padding-bottom: 10px;
 `;
 
@@ -174,12 +175,15 @@ function Detail({ id, type }: IProps) {
 			.slice(-1)
 	);
 
-	console.log(getRating);
 	return (
 		<Wrapper>
 			{detailData && (
 				<>
-					<Cover $bgCover={makeImagePath(detailData.backdrop_path)}>
+					<Cover
+						$bgCover={makeImagePath(
+							detailData.backdrop_path || detailData.poster_path
+						)}
+					>
 						<Title>{detailData.title}</Title>
 						<Close />
 						<Buttons>
