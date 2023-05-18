@@ -21,4 +21,8 @@ export const GlobalStyle = createGlobalStyle`
 		all: unset;
     cursor: pointer;
 	}
+  ul, ol, li {
+    list-style: none;
+    list-style-type: none;
+  }
 `;

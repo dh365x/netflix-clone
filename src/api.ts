@@ -167,3 +167,9 @@ export function getMovieSearch(keyword: string) {
 		`${BASE_PATH}/search/movie?api_key=${API_KEY}&language=ko-KR&query=${keyword}`
 	).then((response) => response.json());
 }
+
+export function getKeyword(keyword: string) {
+	return fetch(
+		`${BASE_PATH}/search/keyword?query=${keyword}&api_key=${API_KEY}`
+	).then((response) => response.json());
+}

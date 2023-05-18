@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import styled from "styled-components";
-import { getMovieSearch } from "../api";
+import { getKeyword, getMovieSearch } from "../api";
 import { makeImagePath, movieTypes } from "../utils";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import Detail from "../components/Detail";
@@ -13,6 +13,19 @@ const Loader = styled.div`
 	height: 20vh;
 `;
 
+const Keywords = styled.div`
+	position: relative;
+	display: flex;
+	top: 145px;
+	padding: 0 60px;
+	padding-bottom: 20px;
+	color: #808080;
+	li {
+		padding: 0 10px;
+		color: ${(props) => props.theme.white.normal};
+	}
+`;
+
 const Row = styled.div`
 	position: relative;
 	display: grid;
@@ -20,12 +33,12 @@ const Row = styled.div`
 	gap: 5px;
 	width: 100%;
 	padding: 0 60px;
-	margin-top: 190px;
+	margin-top: 150px;
 `;
 
 const Box = styled(motion.div)<{ $bgImage: string }>`
 	height: 150px;
-	margin-bottom: 70px;
+	margin-bottom: 50px;
 	background-image: url(${(props) => props.$bgImage});
 	background-position: centert;
 	background-size: cover;
@@ -131,14 +144,23 @@ interface ISearch {
 	vote_average: number;
 	vote_count: number;
 }
-
+interface IGetKeyword {
+	results: IKeyword[];
+}
+interface IKeyword {
+	id: number;
+	name: string;
+}
 function Search() {
+	const location = useLocation();
+	const keyword = new URLSearchParams(location.search).get("keyword");
+
 	const { data, isLoading } = useQuery<IGetSearch>(["search"], () =>
 		getMovieSearch(String(keyword))
 	);
-
-	const location = useLocation();
-	const keyword = new URLSearchParams(location.search).get("keyword");
+	const { data: keywordData } = useQuery<IGetKeyword>(["keywords"], () =>
+		getKeyword(String(keyword))
+	);
 
 	const { scrollY } = useScroll();
 	const history = useHistory();
@@ -157,6 +179,17 @@ function Search() {
 				<Loader>Loading...</Loader>
 			) : (
 				<>
+					<Keywords>
+						<ul>관련 검색어를 살펴보세요</ul>
+						{keywordData?.results
+							.map((key) => (
+								<>
+									<li key={key.id}>{key.name}</li>
+									<span>|</span>
+								</>
+							))
+							.slice(0, 5)}
+					</Keywords>
 					<Row>
 						{data?.results.slice(0, -2).map((content) => (
 							<Box
