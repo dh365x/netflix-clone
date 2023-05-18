@@ -92,7 +92,7 @@ const Circle = styled(motion.span)`
 
 const scrollVariants = {
 	top: {
-		backgroundImage: "linear-gradient(180deg,rgba(0,0,0,.7) 10%,transparent)",
+		backgroundImage: "linear-gradient(180deg,rgba(0,0,0,.7) 10%,rgba(0,0,0,0))",
 	},
 	scroll: {
 		backgroundImage:

@@ -101,6 +101,11 @@ const ModalBox = styled(motion.div)`
 	background-color: ${(props) => props.theme.black.darker};
 `;
 
+const HideBox = styled(motion.div)`
+	width: 100%;
+	height: 100%;
+`;
+
 const rowVariants = {
 	hidden: (isPrev: boolean) => {
 		return {
@@ -199,6 +204,7 @@ function Slider({ type }: { type: movieTypes }) {
 						? "이번 주 공개 콘텐츠"
 						: type}
 				</Title>
+
 				<AnimatePresence
 					custom={isPrev}
 					initial={false}
@@ -218,7 +224,6 @@ function Slider({ type }: { type: movieTypes }) {
 							.slice(offset * index, offset * index + offset)
 							.map((movie) => (
 								<Box
-									layoutId={type + movie.id}
 									onClick={() => onBoxClick(movie.id)}
 									variants={boxVariants}
 									initial="normal"
@@ -229,6 +234,7 @@ function Slider({ type }: { type: movieTypes }) {
 									<Info variants={infoVariants}>
 										<h3>{movie.title}</h3>
 									</Info>
+									<HideBox layoutId={type + movie.id}></HideBox>
 								</Box>
 							))}
 					</Row>
