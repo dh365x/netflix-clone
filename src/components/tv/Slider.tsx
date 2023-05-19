@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { IGetTv, getTv, tvTypes } from "../../api/tv";
 import styled from "styled-components";
 import { makeImagePath } from "../../utils";
+import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const RowContainer = styled.div`
 	position: relative;
@@ -21,7 +23,7 @@ const Title = styled.h2`
 	color: ${(props) => props.theme.white.normal};
 `;
 
-const Row = styled.div`
+const Row = styled(motion.div)`
 	position: absolute;
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
@@ -56,10 +58,60 @@ const Info = styled.div`
 	}
 `;
 
+const Button = styled.button<{ isRight: boolean }>`
+	position: absolute;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 55px;
+	height: 150px;
+	right: ${(props) => (props.isRight ? 0 : null)};
+	rotate: ${(props) => (props.isRight ? "180deg" : null)};
+	background-color: rgba(20, 20, 20, 0.7);
+	opacity: 0;
+	svg {
+		fill: #fff;
+	}
+`;
+
+const rowVariants = {
+	hidden: (isPrev: boolean) => {
+		return {
+			x: isPrev ? -window.outerWidth : window.outerWidth,
+		};
+	},
+	visible: { x: 0 },
+	exit: (isPrev: boolean) => {
+		return {
+			x: isPrev ? window.outerWidth : -window.outerWidth,
+		};
+	},
+};
+
+const offset = 6;
+
 function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
 	const { data } = useQuery<IGetTv>([`tv`, `tv_${type}`], () =>
 		getTv(type, pageNum)
 	);
+
+	const [index, setIndex] = useState(0);
+	const [leaving, setLeaving] = useState(false);
+	const [isPrev, setIsPrev] = useState(false);
+
+	const toggleLeaving = () => {
+		setLeaving((prev) => !prev);
+	};
+	const onArrowClick = (prevv: boolean) => {
+		if (data) {
+			if (leaving) return;
+			toggleLeaving();
+			const totalContent = data.results.length - 3;
+			const maxIndex = Math.floor(totalContent / offset);
+			setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
+			setIsPrev(prevv);
+		}
+	};
 
 	return (
 		<>
@@ -75,23 +127,48 @@ function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
 						? "오늘의 발견!"
 						: type}
 				</Title>
-				<Row>
-					{data?.results
-						.slice(2)
-						.slice(0, 6)
-						.map((content) => (
-							<Box
-								$bgImage={makeImagePath(
-									content.backdrop_path || content.poster_path,
-									"w500"
-								)}
-							>
-								<Info>
-									<h3>{content.name}</h3>
-								</Info>
-							</Box>
-						))}
-				</Row>
+				<AnimatePresence
+					custom={isPrev}
+					initial={false}
+					onExitComplete={toggleLeaving}
+				>
+					<Row
+						key={index}
+						custom={isPrev}
+						variants={rowVariants}
+						initial="hidden"
+						animate="visible"
+						exit="exit"
+						transition={{ type: "tween", duration: 0.7 }}
+					>
+						{data?.results
+							.slice(2)
+							.slice(offset * index, offset * index + offset)
+							.map((content) => (
+								<Box
+									key={content.id}
+									$bgImage={makeImagePath(
+										content.backdrop_path || content.poster_path,
+										"w500"
+									)}
+								>
+									<Info>
+										<h3>{content.name}</h3>
+									</Info>
+								</Box>
+							))}
+					</Row>
+				</AnimatePresence>
+				<Button onClick={() => onArrowClick(true)} isRight={false}>
+					<svg viewBox="0 0 1024 1024">
+						<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
+					</svg>
+				</Button>
+				<Button onClick={() => onArrowClick(false)} isRight={true}>
+					<svg viewBox="0 0 1024 1024">
+						<path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z" />
+					</svg>
+				</Button>
 			</RowContainer>
 		</>
 	);
