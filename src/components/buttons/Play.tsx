@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 const Wrapper = styled.div`
-	display: flex;
 	svg {
 		width: 30px;
 		margin-right: 10px;
@@ -11,7 +10,7 @@ const Wrapper = styled.div`
 		align-items: center;
 		justify-content: center;
 		width: 130px;
-		height: 40px;
+		height: 50px;
 		font-size: 20px;
 		border-radius: 4px;
 		color: ${(props) => props.theme.black.darker};
