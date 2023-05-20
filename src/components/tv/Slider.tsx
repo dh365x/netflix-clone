@@ -3,7 +3,9 @@ import { IGetTv, getTv, tvTypes } from "../../api/tv";
 import styled from "styled-components";
 import { makeImagePath } from "../../utils";
 import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
+import { useHistory, useRouteMatch } from "react-router-dom";
+import Detail from "./Detail";
 
 const RowContainer = styled.div`
 	position: relative;
@@ -32,7 +34,7 @@ const Row = styled(motion.div)`
 	padding: 0 60px;
 `;
 
-const Box = styled.div<{ $bgImage: string }>`
+const Box = styled(motion.div)<{ $bgImage: string }>`
 	height: 150px;
 	background-image: url(${(props) => props.$bgImage});
 	background-position: center center;
@@ -74,6 +76,34 @@ const Button = styled.button<{ isRight: boolean }>`
 	}
 `;
 
+const Overlay = styled(motion.div)`
+	position: fixed;
+	top: 0;
+	z-index: 11;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+`;
+
+const ModalBox = styled(motion.div)`
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 11;
+	margin: 0 auto;
+	width: 55vw;
+	height: 100%;
+	border-radius: 10px;
+	box-shadow: rgb(0 0 0 / 75%) 0px 3px 10px;
+	background-color: ${(props) => props.theme.black.darker};
+`;
+
+const HideBox = styled(motion.div)`
+	width: 100%;
+	height: 100%;
+`;
+
 const rowVariants = {
 	hidden: (isPrev: boolean) => {
 		return {
@@ -88,6 +118,19 @@ const rowVariants = {
 	},
 };
 
+const boxVariants = {
+	normal: { scale: 1 },
+	hover: {
+		y: -50,
+		scale: 1.3,
+		transition: {
+			delay: 0.4,
+			duration: 0.3,
+			type: "tween",
+		},
+	},
+};
+
 const offset = 6;
 
 function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
@@ -98,6 +141,11 @@ function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
 	const [index, setIndex] = useState(0);
 	const [leaving, setLeaving] = useState(false);
 	const [isPrev, setIsPrev] = useState(false);
+	const { scrollY } = useScroll();
+	const history = useHistory();
+	const modalMatch = useRouteMatch<{ contentId: string }>(
+		`/tv/${type}/:contentId`
+	);
 
 	const toggleLeaving = () => {
 		setLeaving((prev) => !prev);
@@ -111,6 +159,12 @@ function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
 			setIndex((prev) => (prev === maxIndex ? 0 : prev + 1));
 			setIsPrev(prevv);
 		}
+	};
+	const onBoxClick = (contentId: string) => {
+		history.push(`tv/${type}/${contentId}`);
+	};
+	const onOverlayClick = () => {
+		history.goBack();
 	};
 
 	return (
@@ -147,6 +201,10 @@ function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
 							.map((content) => (
 								<Box
 									key={content.id}
+									variants={boxVariants}
+									initial="normal"
+									whileHover="hover"
+									onClick={() => onBoxClick(String(content.id))}
 									$bgImage={makeImagePath(
 										content.backdrop_path || content.poster_path,
 										"w500"
@@ -155,6 +213,7 @@ function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
 									<Info>
 										<h3>{content.name}</h3>
 									</Info>
+									<HideBox layoutId={type + content.id} />
 								</Box>
 							))}
 					</Row>
@@ -170,6 +229,21 @@ function Slider({ type, pageNum }: { type: tvTypes; pageNum: number }) {
 					</svg>
 				</Button>
 			</RowContainer>
+			{modalMatch && (
+				<>
+					<Overlay
+						onClick={onOverlayClick}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0 }}
+					/>
+					<ModalBox
+						layoutId={type + modalMatch.params.contentId}
+						style={{ top: scrollY.get() + 30 }}
+					>
+						<Detail id={modalMatch.params.contentId} type={type} />
+					</ModalBox>
+				</>
+			)}
 		</>
 	);
 }
