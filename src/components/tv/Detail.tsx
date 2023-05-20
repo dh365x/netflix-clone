@@ -1,9 +1,13 @@
 import styled from "styled-components";
 import {
+	IGetTvCredits,
 	IGetTvDetails,
 	IGetTvRatings,
+	IGetTvRecommend,
+	getTvCredits,
 	getTvDetails,
 	getTvRatings,
+	getTvRecommend,
 	tvTypes,
 } from "../../api/tv";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +20,7 @@ import { SvgR15, SvgR18, SvgRAll } from "../../assets/SvgRating";
 const Wrapper = styled.div`
 	background-color: ${(props) => props.theme.black.darker};
 	border-radius: 6px;
-	padding-bottom: 10px;
+	padding-bottom: 30px;
 `;
 
 const Cover = styled.div<{ $bgCover: string }>`
@@ -86,6 +90,52 @@ const Details = styled.div`
 	}
 `;
 
+const Credits = styled.div`
+	width: 30%;
+	font-size: 14px;
+	div {
+		margin-bottom: 15px;
+	}
+	label {
+		color: #777;
+	}
+	span {
+		margin-right: 5px;
+	}
+`;
+
+const Recommend = styled.div`
+	margin-top: 30px;
+	h3 {
+		font-size: 24px;
+		font-weight: 500;
+		margin-bottom: 20px;
+	}
+`;
+
+const List = styled.div`
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 20px;
+`;
+
+const Box = styled.div<{ $bgPoster: string }>`
+	height: 380px;
+	border-radius: 6px;
+	background-color: ${(props) => props.theme.black.lighter};
+	background-size: cover;
+	background-position: cneter center;
+	background-image: url(${(props) => props.$bgPoster});
+	p {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		height: 100%;
+		font-size: 20px;
+		font-weight: 500;
+	}
+`;
+
 interface IProps {
 	id: string;
 	type: tvTypes;
@@ -102,6 +152,16 @@ function Detail({ id, type }: IProps) {
 		() => getTvRatings(id)
 	);
 
+	const { data: creditsData } = useQuery<IGetTvCredits>(
+		[`tvCredits`, `tvCredits_${type}`],
+		() => getTvCredits(id)
+	);
+
+	const { data: recommendData } = useQuery<IGetTvRecommend>(
+		[`tvRecommend`, `tvReccomend_${type}`],
+		() => getTvRecommend(id)
+	);
+
 	const getYear = (date: string) => {
 		if (date) return date.split("-")[0];
 	};
@@ -115,6 +175,8 @@ function Detail({ id, type }: IProps) {
 			return usCode;
 		}
 	};
+
+	console.log(detailsData);
 
 	return (
 		<Wrapper>
@@ -160,7 +222,46 @@ function Detail({ id, type }: IProps) {
 								</div>
 								<p>{detailsData.tagline || detailsData.overview}</p>
 							</Details>
+							<Credits>
+								<div>
+									<label>감독: </label>
+									<span>
+										{creditsData?.crew.find(
+											(person) => person.known_for_department === "Directing"
+										)?.name || "Broadcasting"}
+									</span>
+								</div>
+								<div>
+									<label>출연: </label>
+									{creditsData?.cast.slice(0, 6).map((actor) => (
+										<span key={actor.id}>{actor.name},</span>
+									))}
+								</div>
+								<div>
+									<label>장르: </label>
+									{detailsData.genres.map((genre) => (
+										<span key={genre.id}>{genre.name},</span>
+									))}
+								</div>
+							</Credits>
 						</Info>
+						<Recommend>
+							{recommendData?.results.length === 0 ? null : (
+								<>
+									<h3>함께 시청한 콘텐츠</h3>
+									<List>
+										{recommendData?.results.slice(0, 6).map((content) => (
+											<Box
+												key={content.id}
+												$bgPoster={makeImagePath(content.poster_path, "w500")}
+											>
+												<p>{content.poster_path ? null : content.title}</p>
+											</Box>
+										))}
+									</List>
+								</>
+							)}
+						</Recommend>
 					</Container>
 				</>
 			)}
