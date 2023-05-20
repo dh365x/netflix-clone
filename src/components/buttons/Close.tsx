@@ -11,9 +11,14 @@ const Wrapper = styled.button`
 	height: 17px;
 	padding: 10px;
 	border-radius: 50%;
+	border: 2px solid transparent;
 	background-color: ${(props) => props.theme.black.darker};
+	&:hover {
+		border: 2px solid ${(props) => props.theme.white.darker};
+		transition: 0.5s;
+	}
 	&:active {
-		border: 3px solid white;
+		border: 2px solid white;
 	}
 `;
 
