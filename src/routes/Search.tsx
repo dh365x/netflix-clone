@@ -13,27 +13,35 @@ const Loader = styled.div`
 	height: 20vh;
 `;
 
-const Keywords = styled.div`
-	position: relative;
+const Container = styled.div`
 	display: flex;
-	top: 145px;
-	padding: 0 60px;
-	padding-bottom: 20px;
+	flex-direction: column;
+	padding: 150px 60px;
+`;
+
+const Keywords = styled.div`
+	display: flex;
+	margin-bottom: 30px;
 	color: #808080;
+
+	ul {
+		margin-right: 15px;
+		font-size: 15px;
+	}
 	li {
-		padding: 0 10px;
 		color: ${(props) => props.theme.white.normal};
+	}
+	span:last-child {
+		margin: 0 10px;
+		color: #808080;
 	}
 `;
 
 const Row = styled.div`
-	position: relative;
 	display: grid;
 	grid-template-columns: repeat(6, 1fr);
 	gap: 5px;
 	width: 100%;
-	padding: 0 60px;
-	margin-top: 150px;
 `;
 
 const Box = styled(motion.div)<{ $bgImage: string }>`
@@ -178,15 +186,15 @@ function Search() {
 			{isLoading ? (
 				<Loader>Loading...</Loader>
 			) : (
-				<>
+				<Container>
 					<Keywords>
-						<ul>관련 검색어를 살펴보세요</ul>
+						<ul>다음과 관련된 콘텐츠:</ul>
 						{keywordData?.results
 							.map((key) => (
-								<>
-									<li key={key.id}>{key.name}</li>
-									<span>|</span>
-								</>
+								<li key={key.id}>
+									<span>{key.name}</span>
+									<span style={{ padding: "0 10px" }}>|</span>
+								</li>
 							))
 							.slice(0, 5)}
 					</Keywords>
@@ -232,7 +240,7 @@ function Search() {
 							</>
 						)}
 					</AnimatePresence>
-				</>
+				</Container>
 			)}
 		</div>
 	);

@@ -3,6 +3,7 @@ import Tv from "./routes/Tv";
 import Search from "./routes/Search";
 import Header from "./components/Header";
 import Home from "./routes/Home";
+import Footer from "./components/Footer";
 
 function App() {
 	return (
@@ -20,6 +21,7 @@ function App() {
 						<Home />
 					</Route>
 				</Switch>
+				<Footer />
 			</Router>
 		</>
 	);
