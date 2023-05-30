@@ -3,6 +3,10 @@ import { IGetMovies, getMovies } from "../api";
 import styled from "styled-components";
 import { makeImagePath, movieTypes } from "../utils";
 import Slider from "../components/Slider";
+import { useEffect, useState } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
+import { AnimatePresence, motion, useScroll } from "framer-motion";
+import Detail from "../components/Detail";
 
 const Loader = styled.div`
 	display: flex;
@@ -75,20 +79,60 @@ const Buttons = styled.div`
 	}
 `;
 
+const Overlay = styled(motion.div)`
+	position: fixed;
+	top: 0;
+	z-index: 11;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.7);
+`;
+
+const ModalBox = styled(motion.div)`
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 11;
+	margin: 0 auto;
+	width: 55vw;
+	height: 100%;
+	border-radius: 10px;
+	box-shadow: rgb(0 0 0 / 75%) 0px 3px 10px;
+	background-color: ${(props) => props.theme.black.darker};
+`;
+
 function Home() {
 	const { data, isLoading } = useQuery<IGetMovies>(
 		["home", movieTypes.now_playing],
 		() => getMovies(movieTypes.now_playing)
 	);
+
+	const [random, setRandom] = useState(0);
+	useEffect(() => {
+		setRandom(Math.floor(Math.random() * Number(data?.results.length)));
+	}, [data]);
+	const bannerData = data?.results[random];
+
+	const { scrollY } = useScroll();
+	const history = useHistory();
+	const modalMatch = useRouteMatch<{ id: string }>(`/home/:id`);
+	const onInfoClick = (id: number) => {
+		history.push(`/home/${id}`);
+	};
+	const onOverlayClick = () => {
+		history.push(`/`);
+	};
+
 	return (
 		<>
 			{isLoading ? (
 				<Loader>Loading...</Loader>
 			) : (
 				<>
-					<Banner bgImage={makeImagePath(data?.results[0].backdrop_path || "")}>
-						<Title>{data?.results[0].title}</Title>
-						<Overview>{data?.results[0].overview}</Overview>
+					<Banner bgImage={makeImagePath(bannerData?.backdrop_path || "")}>
+						<Title>{bannerData?.title}</Title>
+						<Overview>{bannerData?.overview}</Overview>
 						<Buttons>
 							<button>
 								<svg
@@ -103,7 +147,7 @@ function Home() {
 								</svg>
 								재생
 							</button>
-							<button>
+							<button onClick={() => onInfoClick(Number(bannerData?.id))}>
 								<svg
 									viewBox="0 0 24 24"
 									fill="none"
@@ -122,6 +166,26 @@ function Home() {
 					<Slider type={movieTypes.popular} />
 					<Slider type={movieTypes.top_rated} />
 					<Slider type={movieTypes.upcoming} />
+					{modalMatch && (
+						<AnimatePresence>
+							<Overlay
+								onClick={onOverlayClick}
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+							/>
+							<ModalBox
+								style={{ top: scrollY.get() + 30 }}
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ ease: "easeOut", duration: 0.5 }}
+							>
+								<Detail
+									id={modalMatch.params.id}
+									type={movieTypes.now_playing}
+								/>
+							</ModalBox>
+						</AnimatePresence>
+					)}
 				</>
 			)}
 		</>
