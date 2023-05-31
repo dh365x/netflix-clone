@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { AnimatePresence, motion, useScroll } from "framer-motion";
 import Detail from "../components/Detail";
+import VideoPlay from "../components/VideoPlay";
 
 const Loader = styled.div`
 	display: flex;
@@ -108,20 +109,26 @@ function Home() {
 		() => getMovies(movieTypes.now_playing)
 	);
 
-	const [random, setRandom] = useState(0);
 	useEffect(() => {
 		setRandom(Math.floor(Math.random() * Number(data?.results.length)));
 	}, [data]);
+
+	const [random, setRandom] = useState(0);
 	const bannerData = data?.results[random];
 
 	const { scrollY } = useScroll();
 	const history = useHistory();
 	const modalMatch = useRouteMatch<{ id: string }>(`/home/:id`);
-	const onInfoClick = (id: number) => {
+	const playMatch = useRouteMatch<{ id: string }>(`/play/:id`);
+
+	const onOverlayClick = () => {
+		history.goBack();
+	};
+	const onInfoClick = (id: string) => {
 		history.push(`/home/${id}`);
 	};
-	const onOverlayClick = () => {
-		history.push(`/`);
+	const onPlayClick = (id: string) => {
+		history.push(`/play/${id}`);
 	};
 
 	return (
@@ -134,7 +141,7 @@ function Home() {
 						<Title>{bannerData?.title}</Title>
 						<Overview>{bannerData?.overview}</Overview>
 						<Buttons>
-							<button>
+							<button onClick={() => onPlayClick(String(bannerData?.id))}>
 								<svg
 									viewBox="0 0 24 24"
 									fill="none"
@@ -147,7 +154,7 @@ function Home() {
 								</svg>
 								재생
 							</button>
-							<button onClick={() => onInfoClick(Number(bannerData?.id))}>
+							<button onClick={() => onInfoClick(String(bannerData?.id))}>
 								<svg
 									viewBox="0 0 24 24"
 									fill="none"
@@ -162,30 +169,38 @@ function Home() {
 							</button>
 						</Buttons>
 					</Banner>
+
 					<Slider type={movieTypes.now_playing} />
-					<Slider type={movieTypes.popular} />
 					<Slider type={movieTypes.top_rated} />
 					<Slider type={movieTypes.upcoming} />
-					{modalMatch && (
-						<AnimatePresence>
-							<Overlay
-								onClick={onOverlayClick}
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-							/>
-							<ModalBox
-								style={{ top: scrollY.get() + 30 }}
-								initial={{ opacity: 0 }}
-								animate={{ opacity: 1 }}
-								transition={{ ease: "easeOut", duration: 0.5 }}
-							>
-								<Detail
-									id={modalMatch.params.id}
-									type={movieTypes.now_playing}
+					<Slider type={movieTypes.popular} />
+
+					<AnimatePresence>
+						{modalMatch && (
+							<>
+								<Overlay
+									onClick={onOverlayClick}
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
 								/>
-							</ModalBox>
-						</AnimatePresence>
-					)}
+								<ModalBox
+									style={{ top: scrollY.get() + 30 }}
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
+									transition={{ ease: "easeOut", duration: 0.5 }}
+								>
+									<Detail
+										id={modalMatch.params.id}
+										type={movieTypes.now_playing}
+									/>
+								</ModalBox>
+							</>
+						)}
+					</AnimatePresence>
+
+					<AnimatePresence>
+						{playMatch && <VideoPlay contentId={bannerData?.id + ""} />}
+					</AnimatePresence>
 				</>
 			)}
 		</>

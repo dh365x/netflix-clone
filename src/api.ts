@@ -162,6 +162,12 @@ export function getMovieRecommend(id: string) {
 	).then((response) => response.json());
 }
 
+export function getMovieVideos(id: string) {
+	return fetch(
+		`${BASE_PATH}/movie/${id}/videos?api_key=${API_KEY}&language=en-US`
+	).then((response) => response.json());
+}
+
 export function getMovieSearch(keyword: string) {
 	return fetch(
 		`${BASE_PATH}/search/movie?api_key=${API_KEY}&language=ko-KR&query=${keyword}`
